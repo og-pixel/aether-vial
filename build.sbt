@@ -1,6 +1,6 @@
 lazy val SCALA_3 = "3.0.0"
 
-lazy val aether-vial: Project = Project("aether-vial", file("."))
+lazy val `aether-vial`: Project = Project("aether-vial", file("."))
 //  .enablePlugins(MdocPlugin)
   .settings(
     name := "Aether Vial",
