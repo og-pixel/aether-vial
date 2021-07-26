@@ -7,23 +7,11 @@ import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import com.miloszjakubanis.`aether-vial`.given_ExecutionContext
 
-// given scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
+
+private def convert(i: Int): Future[String] = Future(i.toString)
 @main
 def main =
   val job = AbstractJob[Int, String]
-   (323)(
-   (i: Int) => Future {
-     // Thread.sleep(1000)
-     i.toString
-   })
+   (323)(convert)
 
-  val result = job()
-  job.handleResults(println(_))
-
-  val job2 = PrintingJob("Hello world")
-  job2()
-
-
-  val fileJob = FileWritingJob("Hello world from the concurrent application!")
-  fileJob()
-  
+  val z = job(e => println(e))
