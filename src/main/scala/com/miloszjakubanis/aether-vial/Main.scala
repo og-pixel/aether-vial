@@ -1,3 +1,5 @@
+package com.miloszjakubanis.`aether-vial`.Main
+
 import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
@@ -7,20 +9,17 @@ import scala.concurrent.duration.Duration
 import com.miloszjakubanis.`aether-vial`.AbstractJob
 
 given scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
-@main
-def main =
-  val job = AbstractJob[String, Int](e => Future{println("parsing int job");Integer.parseInt(e)})
-  val job2 = AbstractJob[Int, Unit](e => Future{println("printing job");println(e)})
 
-  val composition = job + job2
+@main def main =
+  val job = new AbstractJob("",1)(e => Future{Thread.sleep(2000);Integer.parseInt(e)})
+  val job2 = new AbstractJob(1,1)(e => Future{Thread.sleep(2000);e*e})
+  val job3 = new AbstractJob(1,1.2)(e => Future{Thread.sleep(2000);e/3.2})
 
-  val result = composition("111a")
+  val time = System.nanoTime()
 
-  result.onComplete {
-    case Success(e) => println("sucessful!")
+  (job + job2 + job3)("3").onComplete {
+    case Success(e) => println(s"Finished in: ${(System.nanoTime() - time) / 1000000000} seconds")
     case Failure(e) => throw new RuntimeException("Error happened")
   }
 
-  // job("111") 
-
-  // val pipeline = new SimplePipeline()
+  val result = System.nanoTime() - time

@@ -10,11 +10,6 @@ class PipelineComposition[A, B, C](
     val right: Pipeline[B, C]
 ) extends Pipeline[A, C]:
 
-  override val job: Job[A, C] = {
-    ???
-  }
+  override val job: Job[A, C] = left.job + right.job
 
-
-//   override def apply(): Unit =
-//     left()
-//     right()
+  override def apply(a: A): Future[C] = job(a)

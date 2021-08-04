@@ -2,6 +2,7 @@ package com.miloszjakubanis.`aether-vial`.pipeline
 
 import com.miloszjakubanis.`aether-vial`.pipeline.PipelineComposition
 import com.miloszjakubanis.`aether-vial`.Job
+import scala.concurrent.{Future, Await}
 
 trait Pipeline[A, B]:
 
@@ -16,4 +17,4 @@ trait Pipeline[A, B]:
   /**
    * Default Method to run the pipeline
    */
-  // def apply(a: A): Unit
+  def apply(a: A): Future[B]
