@@ -1,31 +1,26 @@
 import java.util.concurrent.TimeUnit
-import com.miloszjakubanis.`aether-vial`.{
-  AbstractJob,
-  PrinterJob,
-  JobComposition
-}
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 import scala.concurrent.Future
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import com.miloszjakubanis.`aether-vial`.AbstractJob
-import com.miloszjakubanis.`aether-vial`.given_ExecutionContext
 
-private def convert(i: Int): Future[String] = Future {
-  println("starting  conversion")
-  Thread.sleep(1000)
-  i.toString
-}
-
+given scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
 @main
-def main = 
-  val a = AbstractJob(2727)(convert)()
-  val b = AbstractJob(1000)(convert)()
+def main =
+  val job = AbstractJob[String, Int](e => Future{println("parsing int job");Integer.parseInt(e)})
+  val job2 = AbstractJob[Int, Unit](e => Future{println("printing job");println(e)})
 
-  val res = for {
-    res1 <- a
-    res2 <- b
-  } yield s"$res1 ### $res2"
+  val composition = job + job2
 
-  res.foreach(println(_))
+  val result = composition("111a")
+
+  result.onComplete {
+    case Success(e) => println("sucessful!")
+    case Failure(e) => throw new RuntimeException("Error happened")
+  }
+
+  // job("111") 
+
+  // val pipeline = new SimplePipeline()

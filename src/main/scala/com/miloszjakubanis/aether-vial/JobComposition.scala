@@ -1,11 +1,15 @@
 package com.miloszjakubanis.`aether-vial`
 
-import scala.concurrent.Future
-import java.time.Duration
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
-class JobComposition[A, B, C](input: A)(fun: A => Future[B])(
-    fun2: B => Future[C]
-) extends AbstractJob[A, B](input)(fun):
+class JobComposition[A, B, C](
+    val left: Job[A, B],
+    val right: Job[B, C],
+) extends Job[A, C]:
 
-  def this(input: A)(job: Job[A, B])(job2: Job[B, C]) =
-    this(input)(job.fun)(job2.fun)
+  override def apply(a: A): Future[C] =
+    for {
+      b <- left(a)
+      c <- right(b)
+    } yield c

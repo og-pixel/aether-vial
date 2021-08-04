@@ -4,14 +4,14 @@ import scala.concurrent.{Future, Await}
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success}
 import scala.concurrent.ExecutionContext
+import scala.collection.Iterable
 
 given scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
-trait Job[A, B] extends Runnable:
 
-  val fun: A => Future[B]
+trait Job[A, B] extends Function1[A, Future[B]]:
 
-  def apply(): Future[B]
+  def compose[C](job: Job[B, C]): Job[A, C] = 
+    new JobComposition(this, job)
 
-  def apply[C](a: B => C): Unit
-
-  // def complete: Boolean = if result != null then true else false
+  def +[C](job: Job[B, C]): Job[A, C] =
+    compose(job)
