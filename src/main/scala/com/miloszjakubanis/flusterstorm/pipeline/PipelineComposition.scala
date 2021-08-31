@@ -1,6 +1,6 @@
 package com.miloszjakubanis.flusterstorm.pipeline
 
-import com.miloszjakubanis.flusterstorm.{AbstractJob, Job}
+import com.miloszjakubanis.flusterstorm.job.Job
 import scala.concurrent.{ExecutionContext, Future}
 import scala.collection.mutable.ArrayBuffer
 
@@ -14,5 +14,3 @@ class PipelineComposition[A, C, B](
   override val inputData: ArrayBuffer[A] = left.inputData
 
   override val outputData: ArrayBuffer[B] = right.outputData
-
-  override def apply(): Future[B] = job(inputData.head)

@@ -1,7 +1,7 @@
 package com.miloszjakubanis.flusterstorm.pipeline
 
 import com.miloszjakubanis.flusterstorm.pipeline.PipelineComposition
-import com.miloszjakubanis.flusterstorm.Job
+import com.miloszjakubanis.flusterstorm.job.Job
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{Await, Future}
@@ -14,6 +14,7 @@ trait Pipeline[A, B]:
 
   val job: Job[A, B]
 
+  //TODO at some point improve this data structure
   val inputData: ArrayBuffer[A]
   val outputData: ArrayBuffer[B]
 
@@ -26,6 +27,6 @@ trait Pipeline[A, B]:
   /**
    * Default Method to run the pipeline
    */
-  def apply(): Future[B]
+  // def apply(): Future[B]
 
   def submitInputData(a: A): Unit = inputData += a
