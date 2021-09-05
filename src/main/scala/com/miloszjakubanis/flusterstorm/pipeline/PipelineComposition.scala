@@ -4,6 +4,10 @@ import com.miloszjakubanis.flusterstorm.pipeline.Pipeline
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
+import scala.util.{Success, Failure}
+import com.miloszjakubanis.flusterstorm.job.Job.given_ExecutionContext
+
+import java.util.concurrent.ConcurrentLinkedQueue
 
 class PipelineComposition[A, C, B](
     val left: Pipeline[A, C],
@@ -12,10 +16,12 @@ class PipelineComposition[A, C, B](
 
   override val job = left.job + right.job
 
-  override val inputData: ArrayBuffer[A] = left.inputData
-  override val outputData: ArrayBuffer[B] = right.outputData
+  var inputData: ConcurrentLinkedQueue[A] = left.inputData
+  var outputData: ConcurrentLinkedQueue[B] = right.outputData
+  val middleData: ConcurrentLinkedQueue[C] = new ConcurrentLinkedQueue()
 
-  val middleData: ArrayBuffer[C] = ArrayBuffer()
+  left.outputData = middleData
+  right.inputData = middleData
 
   override def apply(): Future[B] = synchronized {
     left.apply()

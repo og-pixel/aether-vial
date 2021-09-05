@@ -4,23 +4,25 @@ import scala.collection.mutable.ArrayBuffer
 import com.miloszjakubanis.flusterstorm.job.Job
 import com.miloszjakubanis.flusterstorm.job.Job.given_ExecutionContext
 
+import java.util.concurrent.ConcurrentLinkedQueue
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 trait Pipeline[A, B]:
 
   val job: Job[A, B]
-  val inputData: ArrayBuffer[A] = ArrayBuffer()
-  val outputData: ArrayBuffer[B] = ArrayBuffer()
+  var inputData: ConcurrentLinkedQueue[A]
+  var outputData: ConcurrentLinkedQueue[B]
 
   //TODO not sure of synchronized part
   def apply(): Future[B] = synchronized {
-    val input = inputData.remove(0)
-    inputData.trimToSize()
+    val input = inputData.poll().nn
     val res = job(input)
     res.onComplete(e => e match {
       case Failure(e) => e.printStackTrace()
-      case Success(data) => outputData.addOne(data)
+      case Success(data) => 
+        outputData.add(data)
+        outputData.notify()
     })
     res
   }

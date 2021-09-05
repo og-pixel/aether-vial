@@ -7,11 +7,14 @@ import scala.concurrent.Future
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import com.miloszjakubanis.flusterstorm.job.PrintingJob
+import com.miloszjakubanis.flusterstorm.pipeline.*
 
 import scala.concurrent.ExecutionContext
 import com.miloszjakubanis.flusterstorm.job.Job.given_ExecutionContext
 import com.miloszjakubanis.flusterstorm.job.{AbstractJob, PrintingJob}
 import com.miloszjakubanis.flusterstorm.user.AbstractUser
+
+import scala.collection.mutable.ArrayBuffer
 
 @main
 def main =
@@ -22,6 +25,20 @@ def main =
 
   val time = System.nanoTime()
   val aa = job + job2 + job3
+
+  val pipeline = new AbstractPipeline(job)
+  val pipeline2 = new AbstractPipeline(job2)
+  val pipeline3 = new AbstractPipeline(job3)
+
+  val composition: Pipeline[String, Double] = pipeline + pipeline2 + pipeline3
+
+  composition.inputData.add("1")
+  val res = composition.apply()
+
+  res.onComplete(e => e match {
+    case Success(data) => println(s"FOUND DATA: $data")
+    case Failure(e) => e.printStackTrace()
+  })
 
 
 
