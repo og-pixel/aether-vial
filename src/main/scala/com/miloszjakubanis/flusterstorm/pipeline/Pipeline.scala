@@ -1,32 +1,32 @@
 package com.miloszjakubanis.flusterstorm.pipeline
 
-import com.miloszjakubanis.flusterstorm.pipeline.PipelineComposition
-import com.miloszjakubanis.flusterstorm.job.Job
-
 import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.{Await, Future}
+import com.miloszjakubanis.flusterstorm.job.Job
+import com.miloszjakubanis.flusterstorm.job.Job.given_ExecutionContext
 
-/** `Wrapper` around `Job` class
- * that contains storage for jobs to be
- * continuously processed
- * */
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
+
 trait Pipeline[A, B]:
 
   val job: Job[A, B]
+  val inputData: ArrayBuffer[A] = ArrayBuffer()
+  val outputData: ArrayBuffer[B] = ArrayBuffer()
 
-  //TODO at some point improve this data structure
-  val inputData: ArrayBuffer[A]
-  val outputData: ArrayBuffer[B]
+  //TODO not sure of synchronized part
+  def apply(): Future[B] = synchronized {
+    val input = inputData.remove(0)
+    inputData.trimToSize()
+    val res = job(input)
+    res.onComplete(e => e match {
+      case Failure(e) => e.printStackTrace()
+      case Success(data) => outputData.addOne(data)
+    })
+    res
+  }
 
-  def compose[C](pipe: Pipeline[B, C]): Pipeline[A, C] =
-    new PipelineComposition(this, pipe)
+  def compose[Z <: Pipeline[B, C], C](pipeline: Z): Pipeline[A, C] =
+    new PipelineComposition(this, pipeline)
 
-  def +[C](pipe: Pipeline[B, C]): Pipeline[A, C] =
-    compose(pipe)
-
-  /**
-   * Default Method to run the pipeline
-   */
-  // def apply(): Future[B]
-
-  def submitInputData(a: A): Unit = inputData += a
+  def +[Z <: Pipeline[B, C], C](pipeline: Pipeline[B, C]): Pipeline[A, C] =
+    compose(pipeline)

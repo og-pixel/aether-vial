@@ -12,7 +12,7 @@ class JobComposition[A, C, B](
     val right: Job[C, B]
 ) extends Job[A, B]:
 
-  def apply(): Future[B] = ???
+//  def apply(): Future[B] = ???
 
   def apply(a: A): Future[B] =
     for {

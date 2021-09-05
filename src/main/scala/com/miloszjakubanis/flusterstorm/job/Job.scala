@@ -15,13 +15,10 @@ type AnyJob = Job[_, _]
 object Job:
   given ExecutionContext = ExecutionContext.global
 
-
 trait Job[A, B] extends Function1[A, Future[B]]:
 
-  def compose[C](job: Job[B, C]): Job[A, C] =
+  def compose[Z <: Job[B, C], C](job: Z): Job[A, C] =
     new JobComposition(this, job)
 
-  def +[C](job: Job[B, C]): Job[A, C] =
+  def +[Z <: Job[B, C], C](job: Job[B, C]): Job[A, C] =
     compose(job)
-
-  def apply(a: A): Future[B]
