@@ -16,33 +16,21 @@ import com.miloszjakubanis.flusterstorm.user.AbstractUser
 
 import scala.collection.mutable.ArrayBuffer
 
+import scala.concurrent.{ Future, Promise }
+import java.util.concurrent.ConcurrentLinkedQueue
+
 @main
 def main =
-  val job = new AbstractJob[String, Int](e => Future(Integer.parseInt(e)))
+  val job = new AbstractJob[String, Int](e => Future{Thread.sleep(3000); Integer.parseInt(e)})
   val job2 = new AbstractJob[Int, Int](e => Future(e * e))
   val job3 = new AbstractJob[Int, Double](e => Future(e / 2.3))
   val job4 = new PrintingJob[Double]()
 
   val time = System.nanoTime()
-  val aa = job + job2 + job3
+  val aa = job + job2 + job3 + job4
 
-  val pipeline = new AbstractPipeline(job)
-  val pipeline2 = new AbstractPipeline(job2)
-  val pipeline3 = new AbstractPipeline(job3)
+  val pipeline = new Pipeline(aa)
 
-  val composition: Pipeline[String, Double] = pipeline + pipeline2 + pipeline3
-
-  composition.inputData.add("1")
-  val res = composition.apply()
-
-  res.onComplete(e => e match {
-    case Success(data) => println(s"FOUND DATA: $data")
-    case Failure(e) => e.printStackTrace()
-  })
-
-
-
-//  val res = aa.apply("2")
-//  Thread.sleep(1000)
-//  println(res.value.get)
-
+  pipeline.inputData.add("1")
+  pipeline.inputData.add("2")
+  pipeline.work()
