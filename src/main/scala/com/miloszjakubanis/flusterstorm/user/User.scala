@@ -6,6 +6,9 @@ import scala.concurrent.ExecutionContext
 import com.miloszjakubanis.flusterstorm.job.Job
 import com.miloszjakubanis.flusterstorm.pipeline.Pipeline
 
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
+
 object User:
   def apply(factory: () => (name: String) => User): (name: String) => User =
     factory()
@@ -16,14 +19,17 @@ object User:
 trait User extends Runnable:
   val userId: Long
   val userName: String
-  def pipeline: Pipeline[_, _]
+  val pipelineList: mutable.HashMap[String, Pipeline[_, _]] =
+    new mutable.HashMap()
+
+  def pipelineKeys: Array[String] = pipelineList.keys.toArray
 
   val executionContext: ExecutionContext = User.executionContext
 
   def run(): Unit = runPipeline()
-  
-  def submitPipeline(pipeline: Pipeline[_, _]): Unit
-  
-  def runPipeline(): Unit
+
+  def submitPipeline(key: String, pipeline: Pipeline[_, _]): Unit
+
+  def runPipeline(): Unit = pipelineList.head._2.run()
 
   override def toString: String = s"ID: $userId, Name: $userName"
