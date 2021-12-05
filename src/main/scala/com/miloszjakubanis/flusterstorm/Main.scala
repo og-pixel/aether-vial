@@ -1,24 +1,18 @@
-package com.miloszjakubanis.flusterstorm.Main
+package com.miloszjakubanis.flusterstorm
 
-import java.util.concurrent.TimeUnit
-//import scala.concurrent.ExecutionContext
-import scala.util.{Failure, Success}
-import scala.concurrent.Future
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
+import scala.concurrent.ExecutionContext
 import com.miloszjakubanis.flusterstorm.job.{AbstractJob, PrintingJob, StorageJob}
 import com.miloszjakubanis.flusterstorm.pipeline.Pipeline
+import com.miloszjakubanis.flusterstorm.user.UserFactory
 
-import com.miloszjakubanis.flusterstorm.job.Job.given_ExecutionContext
-import com.miloszjakubanis.flusterstorm.user.{AbstractUser, User, UserFactory}
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
-import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.{Future, Promise}
-import java.util.concurrent.ConcurrentLinkedQueue
+object Main extends App {
 
-@main
-def main =
-  val job = new AbstractJob[String, Int](e => Future{Integer.parseInt(e)})
+  implicit val ec = ExecutionContext.global
+
+  val job = new AbstractJob[String, Int](e => Future { Integer.parseInt(e) })
   val job2 = new AbstractJob[Int, Int](e => Future(e * e))
   job2(2)
   val job3 = new AbstractJob[Int, Double](e => Future(e / 2.3))
@@ -26,18 +20,25 @@ def main =
   val job5 = new PrintingJob[Double]()
 
   val time = System.nanoTime()
-  val aa = job + job2 + job3 + job4 + job5
+  val aa = job + job2 + job3 + job4// + job5
 
-  val pipeline = new Pipeline(aa)
+  aa.apply("11").onComplete {
+    case Failure(exception) => exception.printStackTrace()
+    case Success(value) => println(s"Found value: $value")
+  }
 
-  pipeline.inputData.add("1")
-  pipeline.inputData.add("2")
-  pipeline.getFinishedResults()
+//  val pipeline = new Pipeline(aa)
+//
+//  pipeline.inputData.add("1")
+//  pipeline.inputData.add("2")
+//  pipeline.getFinishedResults()
 
-  val factory = UserFactory()
-  val user = factory("milosz")
-  user.submitPipeline("XXXXXXXXX", pipeline)
-  user.submitPipeline("XXXXXXXXX", pipeline)
-  user.runPipeline()
+//  val factory = new UserFactory()
+//  val user = factory("milosz")
+//  user.submitPipeline("XXXXXXXXX", pipeline)
+//  user.submitPipeline("XXXXXXXXX", pipeline)
+//  user.runPipeline()
 
-  println(user.pipelineKeys.mkString)
+//  println(user.pipelineKeys.mkString)
+
+}

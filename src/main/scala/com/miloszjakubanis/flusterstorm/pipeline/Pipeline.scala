@@ -1,20 +1,15 @@
 package com.miloszjakubanis.flusterstorm.pipeline
 
-import scala.collection.mutable.ArrayBuffer
 import com.miloszjakubanis.flusterstorm.job.Job
-import com.miloszjakubanis.flusterstorm.measureTime
-import com.miloszjakubanis.flusterstorm.job.Job.given_ExecutionContext
 
 import java.util.concurrent.ConcurrentLinkedQueue
+import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
-import scala.util.{Failure, Success}
-import java.time.Duration
-import scala.concurrent.Promise
-import scala.reflect.ClassTag
 
 class Pipeline[A, B](
   val job: Job[A, B]
-) extends Runnable:
+) extends Runnable {
+
 
   val inputData: ConcurrentLinkedQueue[A] = new ConcurrentLinkedQueue()
   val outputData: ConcurrentLinkedQueue[Future[B]] = new ConcurrentLinkedQueue()
@@ -22,25 +17,31 @@ class Pipeline[A, B](
   override def run(): Unit =
     work()
 
-  private[this] def work(): Unit =
-    while !inputData.isEmpty do
-      val value = inputData.poll.nn
+  private[this] def work(): Unit = {
+    do {
+      val value = inputData.poll
       val res = job.apply(value)
       outputData.add(res)
+    } while (!inputData.isEmpty)
+  }
 
-  def getFinishedResults(): Seq[B] =
+  def getFinishedResults(): Seq[B] = {
     val arr = new ArrayBuffer[B]()
-    val iter = outputData.iterator().nn
-    while iter.hasNext() do
-      val future: Future[B] = iter.next().nn
-      if future.isCompleted then
-        arr.addOne(future.value.get.get)
+    val iter = outputData.iterator()
+    do {
+      val future: Future[B] = iter.next()
+      if (future.isCompleted) arr.addOne(future.value.get.get)
+    } while (iter.hasNext)
     arr.toSeq
+  }
 
-  def getFutureResults(): Seq[Future[B]] =
-    val arr  = new ArrayBuffer[Future[B]]()
-    val iter = outputData.iterator().nn
-    while iter.hasNext() do
-      val future: Future[B] = iter.next().nn
+  def getFutureResults(): Seq[Future[B]] = {
+    val arr = new ArrayBuffer[Future[B]]()
+    val iter = outputData.iterator()
+    do {
+      val future: Future[B] = iter.next()
       arr.addOne(future)
+    } while (iter.hasNext)
     arr.toSeq
+  }
+}

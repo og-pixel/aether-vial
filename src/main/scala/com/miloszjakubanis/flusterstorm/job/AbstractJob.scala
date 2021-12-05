@@ -9,6 +9,7 @@ import scala.util.{Failure, Success}
 //TODO I called it `abstract` in a sense of functional programming
 // I hope it makes sense
 class AbstractJob[A, B](fun: A => Future[B])
-    extends Job[A, B] with Function1[A, Future[B]]:
+    extends Job[A, B] with Function1[A, Future[B]] {
 
   override def apply(a: A): Future[B] = fun(a)
+}

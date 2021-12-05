@@ -1,16 +1,12 @@
 package com.miloszjakubanis.flusterstorm.job
 
-import com.miloszjakubanis.flusterstorm.job.Job
-import com.miloszjakubanis.flusterstorm.job.Job.given_ExecutionContext
-
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
-import scala.{Function0, Function1}
+import scala.concurrent.Future
 
 class JobComposition[A, C, B](
     val left: Job[A, C],
     val right: Job[C, B]
-) extends Job[A, B]:
+) extends Job[A, B] {
+
 
 //  def apply(): Future[B] = ???
 
@@ -24,3 +20,4 @@ class JobComposition[A, C, B](
     case f: Function0[Future[B]]    => f.apply()
     case f: Function1[A, Future[B]] => f.apply(a)
   }
+}
