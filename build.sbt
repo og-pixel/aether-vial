@@ -1,4 +1,5 @@
 lazy val SCALA_3 = "3.0.1"
+lazy val SCALA_2 = "2.13.7"
 
 lazy val `flusterstorm`: Project = Project("flusterstorm", file("."))
 //  .enablePlugins(MdocPlugin)
@@ -8,7 +9,7 @@ lazy val `flusterstorm`: Project = Project("flusterstorm", file("."))
     name := "Flusterstorm",
     organizationName := "Milosz Jakubanis",
     version := "0.0.1",
-    scalaVersion := SCALA_3,
+    scalaVersion := SCALA_2,
     organization := "com.miloszjakubanis",
     //TODO doesn't work
     // packMain := Map("main" -> "com.miloszjakubanis.aether-vial.Main"),

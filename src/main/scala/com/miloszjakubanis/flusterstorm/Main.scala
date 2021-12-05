@@ -1,7 +1,7 @@
 package com.miloszjakubanis.flusterstorm.Main
 
 import java.util.concurrent.TimeUnit
-import scala.concurrent.ExecutionContext
+//import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 import scala.concurrent.Future
 import scala.concurrent.Await
@@ -9,7 +9,6 @@ import scala.concurrent.duration.Duration
 import com.miloszjakubanis.flusterstorm.job.{AbstractJob, PrintingJob, StorageJob}
 import com.miloszjakubanis.flusterstorm.pipeline.Pipeline
 
-import scala.concurrent.ExecutionContext
 import com.miloszjakubanis.flusterstorm.job.Job.given_ExecutionContext
 import com.miloszjakubanis.flusterstorm.user.{AbstractUser, User, UserFactory}
 
@@ -21,6 +20,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 def main =
   val job = new AbstractJob[String, Int](e => Future{Integer.parseInt(e)})
   val job2 = new AbstractJob[Int, Int](e => Future(e * e))
+  job2(2)
   val job3 = new AbstractJob[Int, Double](e => Future(e / 2.3))
   val job4 = new StorageJob[Double, Double](e => Future(e + e))
   val job5 = new PrintingJob[Double]()
@@ -32,6 +32,7 @@ def main =
 
   pipeline.inputData.add("1")
   pipeline.inputData.add("2")
+  pipeline.getFinishedResults()
 
   val factory = UserFactory()
   val user = factory("milosz")

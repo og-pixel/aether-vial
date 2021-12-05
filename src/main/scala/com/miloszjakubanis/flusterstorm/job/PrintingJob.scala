@@ -11,4 +11,4 @@ import scala.concurrent.Future
   *   Any parameter that can be printer
   */
 class PrintingJob[A]
-    extends AbstractJob[A, Unit](e => Future { println(s"$e") })
+    extends AbstractJob[A, Unit](e => Future { println(e) })
