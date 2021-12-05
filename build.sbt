@@ -14,6 +14,10 @@ lazy val `flusterstorm`: Project = Project("flusterstorm", file("."))
     //TODO doesn't work
     // packMain := Map("main" -> "com.miloszjakubanis.aether-vial.Main"),
     libraryDependencies ++= Seq(
+      //Logback
+      "ch.qos.logback" % "logback-classic" % "1.2.6",
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.9.4",
+
       "com.typesafe" % "config" % "1.4.1",
       "com.lihaoyi" %% "utest" % "0.7.10" % Test,
     ),
