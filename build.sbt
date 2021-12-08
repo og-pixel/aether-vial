@@ -40,3 +40,10 @@ lazy val `flusterstorm`: Project = Project("flusterstorm", file("."))
     ),
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
   )
+
+credentials +=
+  Credentials(
+    "GitHub Package Registry",
+    "maven.pkg.github.com",
+    "og-pixel",
+    "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")
