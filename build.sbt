@@ -1,23 +1,20 @@
-lazy val SCALA_3 = "3.0.1"
 lazy val SCALA_2 = "2.13.7"
 
-lazy val `flusterstorm`: Project = Project("flusterstorm", file("."))
-//  .enablePlugins(MdocPlugin)
-  .enablePlugins(PackPlugin)
-  .enablePlugins(BuildInfoPlugin)
+lazy val `flusterstorm`: Project = project
+  .enablePlugins(PackPlugin, BuildInfoPlugin)
+  .in(file("."))
   .settings(
     name := "Flusterstorm",
     organizationName := "Milosz Jakubanis",
     version := "0.0.1",
     scalaVersion := SCALA_2,
     organization := "com.miloszjakubanis",
-    //TODO doesn't work
-    // packMain := Map("main" -> "com.miloszjakubanis.aether-vial.Main"),
     libraryDependencies ++= Seq(
       //Logback
       "ch.qos.logback" % "logback-classic" % "1.2.6",
       "com.typesafe.scala-logging" %% "scala-logging" % "3.9.4",
 
+      //Config
       "com.typesafe" % "config" % "1.4.1",
       "com.lihaoyi" %% "utest" % "0.7.10" % Test,
     ),
@@ -26,24 +23,16 @@ lazy val `flusterstorm`: Project = Project("flusterstorm", file("."))
       "-feature",
       "-deprecation",
       "-unchecked",
-//      "-Yexplicit-nulls",
-//      "-Ysafe-init",
-//      "-new-syntax",
-      //Extra language options
-//      "-language:dynamics",             // Allow direct or indirect subclasses of scala.Dynamic
-//      "-language:existential",          // Existential types (besides wildcard types) can be written and inferred
-//      "-language:experimental.macros",  // Allow macro defintion (besides implementation and application)
-//      "-language:higherKinds",          // Allow higher-kinded types
-//      "-language:implicitConversions",  // Allow definition of implicit functions called views
-//      "-language:postfixOps",           // Allow postfix operator notation, such as `1 to 10 toList'
-//      "-language:reflectiveCalls",      // Allow reflective access to members of structural types
+      "-language:implicitConversions",
     ),
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-  )
 
-credentials +=
-  Credentials(
-    "GitHub Package Registry",
-    "maven.pkg.github.com",
-    "og-pixel",
-    "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")
+    resolvers := Seq(
+      "Sonatype Nexus Repository Manager" at s"https://artifact.miloszjakubanis.com/repository/milosz/",
+    ),
+    //Credentials
+    versionScheme := Some("early-semver"),
+    publishMavenStyle := true,
+    credentials += Credentials(new File(Path.userHome.absolutePath + "/.nexus/credentials")),
+    publishTo := Some("Sonatype Snapshots Nexus" at "https://artifact.miloszjakubanis.com/repository/milosz")
+  )
