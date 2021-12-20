@@ -14,5 +14,7 @@ package object flusterstorm {
     } while (limit.toMillis > elapsed)
 
   }
+  println("hello world")
+  println("hello world")
 
 }

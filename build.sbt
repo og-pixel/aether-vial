@@ -6,7 +6,7 @@ lazy val `flusterstorm`: Project = project
   .settings(
     name := "Flusterstorm",
     organizationName := "Milosz Jakubanis",
-    version := "0.0.1",
+    version := "0.0.2-SNAPSHOT",
     scalaVersion := SCALA_2,
     organization := "com.miloszjakubanis",
     libraryDependencies ++= Seq(
@@ -28,11 +28,17 @@ lazy val `flusterstorm`: Project = project
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
 
     resolvers := Seq(
-      "Sonatype Nexus Repository Manager" at s"https://artifact.miloszjakubanis.com/repository/milosz/",
+      "releases" at s"https://artifact.miloszjakubanis.com/repository/earth/",
+      "snapshots" at s"https://artifact.miloszjakubanis.com/repository/moon/",
     ),
     //Credentials
     versionScheme := Some("early-semver"),
     publishMavenStyle := true,
     credentials += Credentials(new File(Path.userHome.absolutePath + "/.nexus/credentials")),
-    publishTo := Some("Sonatype Snapshots Nexus" at "https://artifact.miloszjakubanis.com/repository/milosz")
+    publishTo := Some("Sonatype Nexus Repository Manager" at {
+      if (isSnapshot.value)
+        s"https://artifact.miloszjakubanis.com/repository/moon"
+      else
+        s"https://artifact.miloszjakubanis.com/repository/earth"
+    })
   )
